@@ -1,58 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Dec  7 16:03:56 2023
-
 @author: alexandra
 """
 
 """"
-MAD3703 Project
-Goal of project: To analyze a set of data using linear regression in order to predict the best linear
-equation to predict the dependent variables based on the independent variables. Create a possible neural net
-that will find one of the following:
-    - best home to purchase/show up in general when given parameters such as home location, price, etc. 
-    - best stock to buy depending on time of year, growth of company/its gross, etc, parameters surrounding life, etc
-    
-    
-FINAL IDEA: We are doing linear regression to see how the open price, lowest price, highest price, and volume influence the closing...
+Project goal: We are doing linear regression to see how the open price, lowest price, highest price, and volume influence the closing...
 ... price of the stock. This will be done on every stock in the data set
-
-*** POSSIBLY ANALYZE THE ENTIRE YEAR/FINAL PRICE, but then you need to get the other data set and make your own from it because
-.. that one is too long
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import csv as csv
 from sklearn.model_selection import train_test_split # testing and training data
-from sklearn.linear_model import LinearRegression # also self explanatory
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import MinMaxScaler # for scaling data 
-from keras.models import Sequential
-from keras.layers import Dense
-from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression # self explanatory
 import mplfinance as mpf # for fancy stock graph
 
-# i lied we're doing linear regression on one file only i hate this
-
 # Functions
-"""
-def convert_to_numeric_allcols(dataframe, column_index): # Converts all columns in a given data frame to numeric
-    columns = dataframe.columns[column_index]
-    dataframe[columns] = pd.to_numeric(dataframe[columns], errors = 'coerce')
-"""
-"""
-def convert_to_numeric_allcols(dataframe):  # Converts all columns in a given data frame to numeric
-    numeric_cols = dataframe.select_dtypes(include=np.number).columns
-    dataframe.loc[:, numeric_cols] = dataframe.loc[:, numeric_cols].apply(pd.to_numeric, errors='coerce')
-"""
-"""
-def convert_to_numeric_allcols(dataframe):
-    dataframe = dataframe.apply(pd.to_numeric, errors='coerce')
-    return dataframe
-"""
 def convert_to_numeric_except(dataframe, exclude_columns):
     columns_to_convert = [col for col in dataframe.columns if col not in exclude_columns]
     dataframe[columns_to_convert] = dataframe[columns_to_convert].apply(pd.to_numeric, errors='coerce')
@@ -177,7 +141,7 @@ print("YUM Correlation Matrix: \n", correlation_matrices['YUM'])
 print("PEG Correlation matrix:\n", correlation_matrices['PEG'])
 print("TSCO Correlation matrix:\n", correlation_matrices['TSCO']) # has NaN w.r.t gross margin drop it from here
 
-""" good dont regen they arent named w/ a 2 this would be a new file
+""" good dont regenerate they arent named w/ a 2 this would be a new file
 correlation_matrices['ABC'].to_excel('ABC correlation matrix2.xlsx', index = True)
 correlation_matrices['YUM'].to_excel('YUM correlation matrix2.xlsx', index = True)
 correlation_matrices['PEG'].to_excel('PEG correlation matrix2.xlsx', index = True)
@@ -185,28 +149,7 @@ correlation_matrices['V'].to_excel('V correlation matrix2.xlsx', index = True)
 correlation_matrices['TSCO'].to_excel('TSCO correlation matrix2.xlsx', index = True)
 """
 
-
-"""
-for symbol, group_df in stock_names: # good but doesnt really tell me anything
-    drop_columns = ['symbol', 'date', 'float date']
-    numeric_columns = [col for col in group_df.columns if col not in drop_columns]
-    
-    # Convert columns to numeric for the current stock DataFrame
-    convert_to_numeric_allcols(group_df[numeric_columns])
-    
-    # Drop non-numeric columns and compute correlation matrix
-    dropped_df = group_df.drop(columns=drop_columns)
-    corr_matrix = dropped_df.corr()
-    
-    # Store the correlation matrix in a dictionary
-    correlation_matrices[symbol] = corr_matrix
-    
-    for symbol, corr_matrix in correlation_matrices.items():
-        print(f"Correlation matrix for stock: {symbol}")
-        print(corr_matrix)
-        print("\n")
-"""
-# Training and testing neueral net
+# Training and testing neural net
 # For overall data set
 # Using dropped_df which is merged_df1 but without the nonnumerical columns
 analyzed_columns = ['open', 'low', 'high', 'volume', 'Profit Margin', 'Gross Margin', 'Operating Margin', 'Total Revenue']
@@ -599,29 +542,6 @@ includingdate_df = merged_df1.drop(columns=dropped_columns2)
 includingdate_df['date'] = pd.to_datetime(includingdate_df['date'])  # Convert to datetime if not already in datetime format
 includingdate_df.set_index('date', inplace=True)  # Set 'date' column as index
 
-"""
-for symbol, data in grouped_data:
-    data = data.set_index('date')  # Assuming 'date' column contains datetime values
-    
-    # Prepare data for linear regression
-    X = data.index.factorize()[0].reshape(-1, 1)  # Using index as the x-axis
-    y = data['close']
-       
-    # Fit linear regression model
-    model = LinearRegression()
-    model.fit(X, y)
-    regression_line = model.predict(X)
-       
-    # Prepare linear regression line for plotting
-    data['regression_line'] = regression_line
-       
-    # Plot candlestick chart with linear regression line
-    apdict = mpf.make_addplot(data['regression_line'], color='red', width=1)
-    mpf.plot(data, type='candle', addplot=apdict, title=f'Financial Data with Linear Regression - {symbol}')
-    apdict = mpf.make_addplot(data['close'], color='orange')
-    mpf.plot(data, type='candle', addplot=apdict, title=f'Financial Data with Linear Regression - {symbol}')
-    plt.show()
-    """
 for symbol, data in grouped_data: # GOOD
     data = data.set_index('date')  # Assuming 'date' column contains datetime values
     
@@ -669,12 +589,7 @@ for symbol, data in grouped_data:
     mpf.plot(zoomed_data, type='candle', title=f'Zoomed-in View - {symbol}')
     plt.show()
     
-"""
-for stock, data in grouped_data:
-    # Create a plot for each stock
-    apdict = mpf.make_addplot(data['close'], color='orange')  # Replace 'close' with your target column
-    mpf.plot(data, type='candle', addplot=apdict, title=f"{stock} Stock Data")
-"""
+
 """
 # Plotting residuals (difference between actual and predicted values)
 residuals1 = y_test - prediction1
@@ -718,12 +633,4 @@ plt.title('Biplot for PCA (2D)')
 plt.grid(True) 
 plt.show()
 """
-# Graph for PCA (dont do)
-
-
-# Linear Regression
-# We will be looking at each individual parameter and modeling the linear regression
-#
-
-
 
